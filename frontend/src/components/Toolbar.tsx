@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useStore } from '../store/useStore';
 import { bleService, BleEvent } from '../services/bleService';
+import { pythonToBlocklyXml } from '../services/pythonToBlocks';
 import {
   Bluetooth,
   BluetoothOff,
@@ -47,6 +48,7 @@ const Toolbar: React.FC = () => {
     addProgram,
     setCurrentProgram,
     setPythonCode,
+    setBlocklyXml,
     blocklyXml,
     showAIChat,
     toggleAIChat,
@@ -232,6 +234,38 @@ const Toolbar: React.FC = () => {
     input.click();
   };
 
+  const handleSwitchToBlocks = () => {
+    if (editorMode === 'python') {
+      try {
+        const { xml, warnings } = pythonToBlocklyXml(pythonCode);
+        setBlocklyXml(xml);
+
+        if (warnings.length > 0) {
+          addTerminalLine({
+            text: `Python→Blocks: converted with ${warnings.length} warning(s).`,
+            type: 'info',
+            timestamp: Date.now(),
+          });
+        } else {
+          addTerminalLine({
+            text: 'Python→Blocks: converted successfully.',
+            type: 'info',
+            timestamp: Date.now(),
+          });
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        addTerminalLine({
+          text: `Python→Blocks conversion failed: ${message}`,
+          type: 'error',
+          timestamp: Date.now(),
+        });
+      }
+    }
+
+    setEditorMode('blocks');
+  };
+
   const connectionColor =
     connectionState === 'connected'
       ? '#4caf50'
@@ -306,7 +340,7 @@ const Toolbar: React.FC = () => {
           </button>
           <button
             className={`mode-btn ${editorMode === 'blocks' ? 'active' : ''}`}
-            onClick={() => setEditorMode('blocks')}
+            onClick={handleSwitchToBlocks}
             title="Block Editor"
           >
             <Puzzle size={16} />
