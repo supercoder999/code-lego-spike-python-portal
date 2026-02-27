@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore, Program } from '../store/useStore';
-import { File, FilePlus, Trash2, FolderOpen, Pencil, Mail } from 'lucide-react';
+import { File, FilePlus, Trash2, FolderOpen, Pencil } from 'lucide-react';
 
 const FileExplorer: React.FC = () => {
   const {
@@ -22,8 +22,6 @@ const FileExplorer: React.FC = () => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
-  const [emailCooldowns, setEmailCooldowns] = useState<Record<string, number>>({});
-  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (renamingId && renameInputRef.current) {
@@ -31,68 +29,6 @@ const FileExplorer: React.FC = () => {
       renameInputRef.current.select();
     }
   }, [renamingId]);
-
-  // Tick cooldown timers every second
-  useEffect(() => {
-    const activeCooldowns = Object.values(emailCooldowns).some((t) => t > Date.now());
-    if (!activeCooldowns) return;
-    const interval = setInterval(() => {
-      setEmailCooldowns((prev) => {
-        const updated = { ...prev };
-        let changed = false;
-        for (const id of Object.keys(updated)) {
-          if (updated[id] <= Date.now()) {
-            delete updated[id];
-            changed = true;
-          }
-        }
-        return changed ? updated : prev;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [emailCooldowns]);
-
-  const handleSendEmail = async (e: React.MouseEvent, program: Program) => {
-    e.stopPropagation();
-    if (emailCooldowns[program.id] && emailCooldowns[program.id] > Date.now()) return;
-    if (sendingEmail) return;
-
-    setSendingEmail(program.id);
-    try {
-      const res = await fetch('http://localhost:8000/api/email/send-program', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          program_name: program.name,
-          code: program.pythonCode,
-          mode: program.mode,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 429) {
-          const retryAfter = data.retry_after ?? 60;
-          setEmailCooldowns((prev) => ({ ...prev, [program.id]: Date.now() + retryAfter * 1000 }));
-          alert(`Please wait ${retryAfter}s before sending another email.`);
-        } else {
-          alert(data.detail || 'Failed to send email');
-        }
-        return;
-      }
-      // Success — set 60s cooldown
-      setEmailCooldowns((prev) => ({ ...prev, [program.id]: Date.now() + 60_000 }));
-    } catch (err) {
-      alert('Failed to send email. Is the backend running?');
-    } finally {
-      setSendingEmail(null);
-    }
-  };
-
-  const getEmailCooldownRemaining = (programId: string): number => {
-    const expiry = emailCooldowns[programId];
-    if (!expiry) return 0;
-    return Math.max(0, Math.ceil((expiry - Date.now()) / 1000));
-  };
 
   if (!showFileExplorer) return null;
 
@@ -174,8 +110,6 @@ const FileExplorer: React.FC = () => {
           </div>
         ) : (
           [...programs].sort((a, b) => b.createdAt - a.createdAt).map((program) => {
-            const cooldownSec = getEmailCooldownRemaining(program.id);
-            const emailDisabled = cooldownSec > 0 || sendingEmail === program.id;
             return (
             <div
               key={program.id}
@@ -202,15 +136,6 @@ const FileExplorer: React.FC = () => {
               <span className="file-mode">
                 {program.mode === 'python' ? '.py' : '.blk'}
               </span>
-              <button
-                className={`file-email-btn ${emailDisabled ? 'disabled' : ''}`}
-                onClick={(e) => handleSendEmail(e, program)}
-                title={emailDisabled ? `Wait ${cooldownSec}s` : 'Email to admin'}
-                disabled={emailDisabled}
-              >
-                <Mail size={12} />
-                {cooldownSec > 0 && <span className="email-cooldown-badge">{cooldownSec}</span>}
-              </button>
               <button
                 className="file-rename-btn"
                 onClick={(e) => handleStartRename(e, program)}

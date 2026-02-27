@@ -1,7 +1,13 @@
 import React, { useEffect, useCallback } from 'react';
+import * as Blockly from 'blockly';
 import { useStore } from '../store/useStore';
 import { bleService, BleEvent } from '../services/bleService';
 import { pythonToBlocklyXml } from '../services/pythonToBlocks';
+import { registerGenerators, generatePythonCode } from '../blockly/spikeBlocks';
+import {
+  installLatestStablePrimehubFirmware,
+  restoreBundledLegoFirmware,
+} from '../services/firmwareService';
 import {
   Bluetooth,
   BluetoothOff,
@@ -16,11 +22,9 @@ import {
   Puzzle,
   Download,
   Upload,
-  Trash2,
   Battery,
   BatteryLow,
   Wifi,
-  WifiOff,
   Sparkles,
 } from 'lucide-react';
 
@@ -266,6 +270,112 @@ const Toolbar: React.FC = () => {
     setEditorMode('blocks');
   };
 
+  const handleSwitchToPython = () => {
+    if (editorMode === 'blocks' && pythonCode.trim() === '' && blocklyXml.trim() !== '') {
+      try {
+        registerGenerators();
+        const workspace = new Blockly.Workspace();
+        const xml = Blockly.utils.xml.textToDom(blocklyXml);
+        Blockly.Xml.domToWorkspace(xml, workspace);
+        const generatedCode = generatePythonCode(workspace);
+        workspace.dispose();
+
+        setPythonCode(generatedCode);
+        addTerminalLine({
+          text: 'Blocks→Python: generated because Python editor was empty.',
+          type: 'info',
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        addTerminalLine({
+          text: `Blocks→Python generation failed: ${message}`,
+          type: 'error',
+          timestamp: Date.now(),
+        });
+      }
+    }
+
+    setEditorMode('python');
+  };
+
+  const handleInstallPybricksFirmware = async () => {
+    addTerminalLine({
+      text: 'Firmware: finding latest stable PrimeHub release...',
+      type: 'info',
+      timestamp: Date.now(),
+    });
+    addTerminalLine({
+      text: 'Keep hub connected via USB and in update mode during flashing.',
+      type: 'info',
+      timestamp: Date.now(),
+    });
+
+    try {
+      const result = await installLatestStablePrimehubFirmware();
+      addTerminalLine({
+        text: result.message,
+        type: 'info',
+        timestamp: Date.now(),
+      });
+      if (result.output) {
+        addTerminalLine({
+          text: result.output,
+          type: 'output',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      addTerminalLine({
+        text: `Firmware install failed: ${message}`,
+        type: 'error',
+        timestamp: Date.now(),
+      });
+    }
+  };
+
+  const handleRestoreOfficialFirmware = async () => {
+    addTerminalLine({
+      text: 'Firmware: restoring from bundled backend BIN...',
+      type: 'info',
+      timestamp: Date.now(),
+    });
+    addTerminalLine({
+      text: 'Restore steps: connect hub via USB, enter DFU mode (hold Bluetooth while plugging USB until LED flashes red/green/blue).',
+      type: 'info',
+      timestamp: Date.now(),
+    });
+    addTerminalLine({
+      text: 'If this fails with missing dfu-util/libusb, install: sudo apt install -y dfu-util libusb-1.0-0',
+      type: 'info',
+      timestamp: Date.now(),
+    });
+
+    try {
+      const info = await restoreBundledLegoFirmware();
+      addTerminalLine({
+        text: info.message,
+        type: 'info',
+        timestamp: Date.now(),
+      });
+      if (info.output) {
+        addTerminalLine({
+          text: info.output,
+          type: 'output',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      addTerminalLine({
+        text: `Restore FW failed: ${message}`,
+        type: 'error',
+        timestamp: Date.now(),
+      });
+    }
+  };
+
   const connectionColor =
     connectionState === 'connected'
       ? '#4caf50'
@@ -332,7 +442,7 @@ const Toolbar: React.FC = () => {
         <div className="editor-mode-toggle">
           <button
             className={`mode-btn ${editorMode === 'python' ? 'active' : ''}`}
-            onClick={() => setEditorMode('python')}
+            onClick={handleSwitchToPython}
             title="Python Editor"
           >
             <Code2 size={16} />
@@ -387,6 +497,24 @@ const Toolbar: React.FC = () => {
         >
           <Sparkles size={18} />
           <span className="toolbar-label">AI</span>
+        </button>
+
+        <button
+          className="toolbar-btn"
+          onClick={handleInstallPybricksFirmware}
+          title="Install Pybricks firmware"
+        >
+          <Download size={18} />
+          <span className="toolbar-label">Install FW</span>
+        </button>
+
+        <button
+          className="toolbar-btn"
+          onClick={handleRestoreOfficialFirmware}
+          title="Restore official LEGO firmware"
+        >
+          <Upload size={18} />
+          <span className="toolbar-label">Restore FW</span>
         </button>
 
         <div className="toolbar-separator" />

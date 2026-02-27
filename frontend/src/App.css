@@ -378,46 +378,6 @@ html, body, #root {
   color: var(--primary);
 }
 
-.file-email-btn {
-  opacity: 0;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  transition: opacity 0.15s;
-  position: relative;
-}
-
-.file-item:hover .file-email-btn {
-  opacity: 1;
-}
-
-.file-email-btn:hover:not(.disabled) {
-  color: #1a73e8;
-}
-
-.file-email-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.file-item:hover .file-email-btn.disabled {
-  opacity: 0.4;
-}
-
-.email-cooldown-badge {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--warning, #f59e0b);
-  min-width: 14px;
-  text-align: center;
-}
-
 .file-rename-input {
   flex: 1;
   background: var(--bg-primary);

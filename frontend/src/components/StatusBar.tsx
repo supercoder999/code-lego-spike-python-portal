@@ -58,7 +58,7 @@ const StatusBar: React.FC = () => {
       <div className="status-bar-right">
         <div className="status-item">
           <span>
-            {editorMode === 'python' ? 'Python (Pybricks MicroPython)' : 'Block Editor'}
+            {editorMode === 'python' ? 'Python Editor' : 'Block Editor'}
           </span>
         </div>
         <div className="status-item">

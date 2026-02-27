@@ -10,10 +10,18 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
+This installs `pybricksdev`, used by the firmware endpoint to flash Pybricks firmware.
+
 ## Run
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --env-file .env
+```
+
+Create `backend/.env` and set:
+
+```env
+GEMINI_API_KEY=your_key_here
 ```
 
 ## API Docs

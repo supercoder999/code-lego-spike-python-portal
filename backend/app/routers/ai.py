@@ -196,7 +196,7 @@ def _gemini_build_contents(messages: list[dict]) -> list[dict]:
 
 
 async def _gemini_chat(messages: list[dict], api_key: str) -> ChatResponse:
-    url = f"{GEMINI_API_URL}/{GEMINI_MODEL}:generateContent?key={api_key}"
+    url = f"{GEMINI_API_URL}/{GEMINI_MODEL}:generateContent"
     contents = _gemini_build_contents(messages)
 
     body = {
@@ -206,7 +206,11 @@ async def _gemini_chat(messages: list[dict], api_key: str) -> ChatResponse:
     }
 
     async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(url, json=body)
+        resp = await client.post(
+            url,
+            headers={"x-goog-api-key": api_key},
+            json=body,
+        )
         if resp.status_code != 200:
             raise HTTPException(status_code=resp.status_code, detail=resp.text)
         data = resp.json()
@@ -222,7 +226,7 @@ async def _gemini_chat(messages: list[dict], api_key: str) -> ChatResponse:
 
 
 async def _gemini_stream(messages: list[dict], api_key: str):
-    url = f"{GEMINI_API_URL}/{GEMINI_MODEL}:streamGenerateContent?alt=sse&key={api_key}"
+    url = f"{GEMINI_API_URL}/{GEMINI_MODEL}:streamGenerateContent?alt=sse"
     contents = _gemini_build_contents(messages)
 
     body = {
@@ -232,7 +236,12 @@ async def _gemini_stream(messages: list[dict], api_key: str):
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
-        async with client.stream("POST", url, json=body) as resp:
+        async with client.stream(
+            "POST",
+            url,
+            headers={"x-goog-api-key": api_key},
+            json=body,
+        ) as resp:
             if resp.status_code != 200:
                 error = await resp.aread()
                 yield f"data: {json.dumps({'type': 'error', 'error': error.decode()})}\n\n"

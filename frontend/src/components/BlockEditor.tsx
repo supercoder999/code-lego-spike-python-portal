@@ -1,21 +1,17 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import * as Blockly from 'blockly';
-import { toolbox, registerGenerators, generatePythonCode } from '../blockly/spikeBlocks';
+import { toolbox, registerGenerators } from '../blockly/spikeBlocks';
 import { useStore } from '../store/useStore';
 
 const BlockEditor: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
-  const { setPythonCode, setBlocklyXml, darkMode } = useStore();
+  const { setBlocklyXml, darkMode } = useStore();
 
-  // Generate Python code from blocks
+  // Save Blockly XML state
   const updateCode = useCallback(() => {
     if (workspaceRef.current) {
       try {
-        const code = generatePythonCode(workspaceRef.current);
-        setPythonCode(code);
-
-        // Save Blockly XML state
         const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
         const xmlText = Blockly.Xml.domToText(xml);
         setBlocklyXml(xmlText);
@@ -23,7 +19,7 @@ const BlockEditor: React.FC = () => {
         console.error('Error generating code:', err);
       }
     }
-  }, [setPythonCode, setBlocklyXml]);
+  }, [setBlocklyXml]);
 
   useEffect(() => {
     if (!containerRef.current) return;
