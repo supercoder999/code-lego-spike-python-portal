@@ -84,6 +84,15 @@ Blockly.Blocks['spike_hub_button_pressed'] = {
   },
 };
 
+Blockly.Blocks['spike_hub_buttons_pressed'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput().appendField('Hub buttons pressed list');
+    this.setOutput(true, null);
+    this.setColour(230);
+    this.setTooltip('Get list of currently pressed hub buttons');
+  },
+};
+
 // --- Motor Blocks ---
 Blockly.Blocks['spike_motor_init'] = {
   init: function (this: Blockly.Block) {
@@ -189,6 +198,59 @@ Blockly.Blocks['spike_motor_angle'] = {
     this.setOutput(true, 'Number');
     this.setColour(120);
     this.setTooltip('Get the current angle of the motor');
+  },
+};
+
+Blockly.Blocks['spike_motor_run_target'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Run motor')
+      .appendField(new Blockly.FieldVariable('motor_a'), 'VAR')
+      .appendField('to target angle');
+    this.appendValueInput('SPEED').setCheck('Number').appendField('speed (deg/s)');
+    this.appendValueInput('TARGET_ANGLE').setCheck('Number').appendField('target angle (deg)');
+    this.appendDummyInput()
+      .appendField('then')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Coast', 'Stop.COAST'],
+          ['Brake', 'Stop.BRAKE'],
+          ['Hold', 'Stop.HOLD'],
+        ]),
+        'STOP'
+      );
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(120);
+    this.setTooltip('Run motor to target angle');
+  },
+};
+
+Blockly.Blocks['spike_motor_dc'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Set motor')
+      .appendField(new Blockly.FieldVariable('motor_a'), 'VAR')
+      .appendField('duty');
+    this.appendValueInput('DUTY').setCheck('Number').appendField('(-100 to 100)');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(120);
+    this.setTooltip('Run motor at duty cycle');
+  },
+};
+
+Blockly.Blocks['spike_motor_reset_angle'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Reset motor')
+      .appendField(new Blockly.FieldVariable('motor_a'), 'VAR')
+      .appendField('angle to');
+    this.appendValueInput('ANGLE').setCheck('Number').appendField('(deg)');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(120);
+    this.setTooltip('Reset motor angle');
   },
 };
 
@@ -310,6 +372,36 @@ Blockly.Blocks['spike_drivebase_stop'] = {
   },
 };
 
+Blockly.Blocks['spike_drivebase_reset'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput().appendField('Reset DriveBase distance/angle');
+    this.appendValueInput('DISTANCE').setCheck('Number').appendField('distance (mm)');
+    this.appendValueInput('ANGLE').setCheck('Number').appendField('angle (deg)');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(65);
+    this.setTooltip('Reset DriveBase odometry values');
+  },
+};
+
+Blockly.Blocks['spike_drivebase_distance'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput().appendField('DriveBase distance');
+    this.setOutput(true, 'Number');
+    this.setColour(65);
+    this.setTooltip('Get traveled distance in mm');
+  },
+};
+
+Blockly.Blocks['spike_drivebase_angle'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput().appendField('DriveBase angle');
+    this.setOutput(true, 'Number');
+    this.setColour(65);
+    this.setTooltip('Get turned angle in degrees');
+  },
+};
+
 // --- Sensor Blocks ---
 Blockly.Blocks['spike_color_sensor_init'] = {
   init: function (this: Blockly.Block) {
@@ -359,6 +451,30 @@ Blockly.Blocks['spike_color_sensor_reflection'] = {
   },
 };
 
+Blockly.Blocks['spike_color_sensor_ambient'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Color sensor')
+      .appendField(new Blockly.FieldVariable('color_sensor'), 'VAR')
+      .appendField('ambient');
+    this.setOutput(true, 'Number');
+    this.setColour(20);
+    this.setTooltip('Get ambient light intensity (0-100%)');
+  },
+};
+
+Blockly.Blocks['spike_color_sensor_hsv'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Color sensor')
+      .appendField(new Blockly.FieldVariable('color_sensor'), 'VAR')
+      .appendField('HSV');
+    this.setOutput(true, null);
+    this.setColour(20);
+    this.setTooltip('Get HSV tuple from color sensor');
+  },
+};
+
 Blockly.Blocks['spike_ultrasonic_init'] = {
   init: function (this: Blockly.Block) {
     this.appendDummyInput()
@@ -392,6 +508,18 @@ Blockly.Blocks['spike_ultrasonic_distance'] = {
     this.setOutput(true, 'Number');
     this.setColour(20);
     this.setTooltip('Get the measured distance in mm');
+  },
+};
+
+Blockly.Blocks['spike_ultrasonic_presence'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Ultrasonic sensor')
+      .appendField(new Blockly.FieldVariable('ultrasonic'), 'VAR')
+      .appendField('presence');
+    this.setOutput(true, 'Boolean');
+    this.setColour(20);
+    this.setTooltip('Check if another ultrasonic sensor is nearby');
   },
 };
 
@@ -443,6 +571,18 @@ Blockly.Blocks['spike_force_sensor_pressed'] = {
   },
 };
 
+Blockly.Blocks['spike_force_sensor_distance'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Force sensor')
+      .appendField(new Blockly.FieldVariable('force_sensor'), 'VAR')
+      .appendField('distance (mm)');
+    this.setOutput(true, 'Number');
+    this.setColour(20);
+    this.setTooltip('Get force sensor distance');
+  },
+};
+
 // --- Control Blocks ---
 Blockly.Blocks['spike_wait'] = {
   init: function (this: Blockly.Block) {
@@ -465,12 +605,199 @@ Blockly.Blocks['spike_print'] = {
   },
 };
 
+Blockly.Blocks['spike_comment'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Comment')
+      .appendField(new Blockly.FieldTextInput('my note'), 'TEXT');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+    this.setTooltip('Add a Python comment line');
+  },
+};
+
 Blockly.Blocks['spike_stopwatch'] = {
   init: function (this: Blockly.Block) {
     this.appendDummyInput().appendField('Create StopWatch');
     this.setOutput(true, null);
     this.setColour(290);
     this.setTooltip('Create a new StopWatch');
+  },
+};
+
+Blockly.Blocks['spike_stopwatch_init'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Initialize StopWatch')
+      .appendField(new Blockly.FieldVariable('stopwatch'), 'VAR');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip('Create and store a new StopWatch');
+  },
+};
+
+Blockly.Blocks['spike_stopwatch_time'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('StopWatch')
+      .appendField(new Blockly.FieldVariable('stopwatch'), 'VAR')
+      .appendField('time (ms)');
+    this.setOutput(true, 'Number');
+    this.setColour(290);
+    this.setTooltip('Get elapsed time in milliseconds');
+  },
+};
+
+Blockly.Blocks['spike_stopwatch_reset'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Reset StopWatch')
+      .appendField(new Blockly.FieldVariable('stopwatch'), 'VAR');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip('Reset stopwatch to zero');
+  },
+};
+
+Blockly.Blocks['spike_stopwatch_pause'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Pause StopWatch')
+      .appendField(new Blockly.FieldVariable('stopwatch'), 'VAR');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip('Pause stopwatch');
+  },
+};
+
+Blockly.Blocks['spike_stopwatch_resume'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Resume StopWatch')
+      .appendField(new Blockly.FieldVariable('stopwatch'), 'VAR');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip('Resume paused stopwatch');
+  },
+};
+
+// --- Parameter Value Blocks ---
+Blockly.Blocks['spike_value_button'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Button')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Left', 'Button.LEFT'],
+          ['Right', 'Button.RIGHT'],
+          ['Bluetooth', 'Button.BLUETOOTH'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Button enum value');
+  },
+};
+
+Blockly.Blocks['spike_value_color'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Color')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Red', 'Color.RED'],
+          ['Green', 'Color.GREEN'],
+          ['Blue', 'Color.BLUE'],
+          ['Yellow', 'Color.YELLOW'],
+          ['Orange', 'Color.ORANGE'],
+          ['Violet', 'Color.VIOLET'],
+          ['White', 'Color.WHITE'],
+          ['None', 'Color.NONE'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Color enum value');
+  },
+};
+
+Blockly.Blocks['spike_value_direction'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Direction')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Clockwise', 'Direction.CLOCKWISE'],
+          ['Counterclockwise', 'Direction.COUNTERCLOCKWISE'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Direction enum value');
+  },
+};
+
+Blockly.Blocks['spike_value_port'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Port')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['A', 'Port.A'],
+          ['B', 'Port.B'],
+          ['C', 'Port.C'],
+          ['D', 'Port.D'],
+          ['E', 'Port.E'],
+          ['F', 'Port.F'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Port enum value');
+  },
+};
+
+Blockly.Blocks['spike_value_side'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Side')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Left', 'Side.LEFT'],
+          ['Right', 'Side.RIGHT'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Side enum value');
+  },
+};
+
+Blockly.Blocks['spike_value_stop'] = {
+  init: function (this: Blockly.Block) {
+    this.appendDummyInput()
+      .appendField('Stop')
+      .appendField(
+        new Blockly.FieldDropdown([
+          ['Coast', 'Stop.COAST'],
+          ['Brake', 'Stop.BRAKE'],
+          ['Hold', 'Stop.HOLD'],
+        ]),
+        'VALUE'
+      );
+    this.setOutput(true, null);
+    this.setColour(40);
+    this.setTooltip('Stop enum value');
   },
 };
 
@@ -501,7 +828,7 @@ export function registerGenerators(): void {
 
   pythonGenerator.forBlock['spike_hub_display_image'] = function (block: Blockly.Block) {
     const image = pythonGenerator.valueToCode(block, 'IMAGE', 0) || "''";
-    return `hub.display.text(${image})\n`;
+    return `hub.display.image(${image})\n`;
   };
 
   pythonGenerator.forBlock['spike_hub_light'] = function (block: Blockly.Block) {
@@ -518,6 +845,10 @@ export function registerGenerators(): void {
   pythonGenerator.forBlock['spike_hub_button_pressed'] = function (block: Blockly.Block) {
     const button = block.getFieldValue('BUTTON');
     return [`${button} in hub.buttons.pressed()`, 0];
+  };
+
+  pythonGenerator.forBlock['spike_hub_buttons_pressed'] = function () {
+    return ['hub.buttons.pressed()', 0];
   };
 
   // Motors
@@ -557,6 +888,26 @@ export function registerGenerators(): void {
   pythonGenerator.forBlock['spike_motor_angle'] = function (block: Blockly.Block) {
     const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
     return [`${varName}.angle()`, 0];
+  };
+
+  pythonGenerator.forBlock['spike_motor_run_target'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    const speed = pythonGenerator.valueToCode(block, 'SPEED', 0) || '500';
+    const targetAngle = pythonGenerator.valueToCode(block, 'TARGET_ANGLE', 0) || '0';
+    const stopMode = block.getFieldValue('STOP') || 'Stop.COAST';
+    return `${varName}.run_target(${speed}, ${targetAngle}, ${stopMode})\n`;
+  };
+
+  pythonGenerator.forBlock['spike_motor_dc'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    const duty = pythonGenerator.valueToCode(block, 'DUTY', 0) || '50';
+    return `${varName}.dc(${duty})\n`;
+  };
+
+  pythonGenerator.forBlock['spike_motor_reset_angle'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    const angle = pythonGenerator.valueToCode(block, 'ANGLE', 0) || '0';
+    return `${varName}.reset_angle(${angle})\n`;
   };
 
   // DriveBase
@@ -608,6 +959,20 @@ export function registerGenerators(): void {
     return 'drive_base.stop()\n';
   };
 
+  pythonGenerator.forBlock['spike_drivebase_reset'] = function (block: Blockly.Block) {
+    const distance = pythonGenerator.valueToCode(block, 'DISTANCE', 0) || '0';
+    const angle = pythonGenerator.valueToCode(block, 'ANGLE', 0) || '0';
+    return `drive_base.reset(${distance}, ${angle})\n`;
+  };
+
+  pythonGenerator.forBlock['spike_drivebase_distance'] = function () {
+    return ['drive_base.distance()', 0];
+  };
+
+  pythonGenerator.forBlock['spike_drivebase_angle'] = function () {
+    return ['drive_base.angle()', 0];
+  };
+
   // Sensors
   pythonGenerator.forBlock['spike_color_sensor_init'] = function (block: Blockly.Block) {
     const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
@@ -625,6 +990,16 @@ export function registerGenerators(): void {
     return [`${varName}.reflection()`, 0];
   };
 
+  pythonGenerator.forBlock['spike_color_sensor_ambient'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return [`${varName}.ambient()`, 0];
+  };
+
+  pythonGenerator.forBlock['spike_color_sensor_hsv'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return [`${varName}.hsv()`, 0];
+  };
+
   pythonGenerator.forBlock['spike_ultrasonic_init'] = function (block: Blockly.Block) {
     const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
     const port = block.getFieldValue('PORT');
@@ -634,6 +1009,11 @@ export function registerGenerators(): void {
   pythonGenerator.forBlock['spike_ultrasonic_distance'] = function (block: Blockly.Block) {
     const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
     return [`${varName}.distance()`, 0];
+  };
+
+  pythonGenerator.forBlock['spike_ultrasonic_presence'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return [`${varName}.presence()`, 0];
   };
 
   pythonGenerator.forBlock['spike_force_sensor_init'] = function (block: Blockly.Block) {
@@ -652,6 +1032,11 @@ export function registerGenerators(): void {
     return [`${varName}.pressed()`, 0];
   };
 
+  pythonGenerator.forBlock['spike_force_sensor_distance'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return [`${varName}.distance()`, 0];
+  };
+
   // Control
   pythonGenerator.forBlock['spike_wait'] = function (block: Blockly.Block) {
     const time = pythonGenerator.valueToCode(block, 'TIME', 0) || '1000';
@@ -663,8 +1048,63 @@ export function registerGenerators(): void {
     return `print(${text})\n`;
   };
 
+  pythonGenerator.forBlock['spike_comment'] = function (block: Blockly.Block) {
+    const rawText = block.getFieldValue('TEXT') || '';
+    const sanitized = rawText.replace(/\r?\n/g, ' ');
+    return `# ${sanitized}\n`;
+  };
+
   pythonGenerator.forBlock['spike_stopwatch'] = function () {
     return ['StopWatch()', 0];
+  };
+
+  pythonGenerator.forBlock['spike_stopwatch_init'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return `${varName} = StopWatch()\n`;
+  };
+
+  pythonGenerator.forBlock['spike_stopwatch_time'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return [`${varName}.time()`, 0];
+  };
+
+  pythonGenerator.forBlock['spike_stopwatch_reset'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return `${varName}.reset()\n`;
+  };
+
+  pythonGenerator.forBlock['spike_stopwatch_pause'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return `${varName}.pause()\n`;
+  };
+
+  pythonGenerator.forBlock['spike_stopwatch_resume'] = function (block: Blockly.Block) {
+    const varName = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
+    return `${varName}.resume()\n`;
+  };
+
+  pythonGenerator.forBlock['spike_value_button'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Button.LEFT', 0];
+  };
+
+  pythonGenerator.forBlock['spike_value_color'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Color.RED', 0];
+  };
+
+  pythonGenerator.forBlock['spike_value_direction'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Direction.CLOCKWISE', 0];
+  };
+
+  pythonGenerator.forBlock['spike_value_port'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Port.A', 0];
+  };
+
+  pythonGenerator.forBlock['spike_value_side'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Side.LEFT', 0];
+  };
+
+  pythonGenerator.forBlock['spike_value_stop'] = function (block: Blockly.Block) {
+    return [block.getFieldValue('VALUE') || 'Stop.COAST', 0];
   };
 }
 
@@ -689,6 +1129,7 @@ export const toolbox = {
         },
         { kind: 'block', type: 'spike_hub_display_image' },
         { kind: 'block', type: 'spike_hub_button_pressed' },
+        { kind: 'block', type: 'spike_hub_buttons_pressed' },
       ],
     },
     {
@@ -722,6 +1163,28 @@ export const toolbox = {
         },
         { kind: 'block', type: 'spike_motor_stop' },
         { kind: 'block', type: 'spike_motor_angle' },
+        {
+          kind: 'block',
+          type: 'spike_motor_run_target',
+          inputs: {
+            SPEED: { shadow: { type: 'math_number', fields: { NUM: 500 } } },
+            TARGET_ANGLE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'spike_motor_dc',
+          inputs: {
+            DUTY: { shadow: { type: 'math_number', fields: { NUM: 50 } } },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'spike_motor_reset_angle',
+          inputs: {
+            ANGLE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+          },
+        },
       ],
     },
     {
@@ -782,6 +1245,16 @@ export const toolbox = {
           },
         },
         { kind: 'block', type: 'spike_drivebase_stop' },
+        {
+          kind: 'block',
+          type: 'spike_drivebase_reset',
+          inputs: {
+            DISTANCE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            ANGLE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+          },
+        },
+        { kind: 'block', type: 'spike_drivebase_distance' },
+        { kind: 'block', type: 'spike_drivebase_angle' },
       ],
     },
     {
@@ -792,11 +1265,15 @@ export const toolbox = {
         { kind: 'block', type: 'spike_color_sensor_init' },
         { kind: 'block', type: 'spike_color_sensor_color' },
         { kind: 'block', type: 'spike_color_sensor_reflection' },
+        { kind: 'block', type: 'spike_color_sensor_ambient' },
+        { kind: 'block', type: 'spike_color_sensor_hsv' },
         { kind: 'block', type: 'spike_ultrasonic_init' },
         { kind: 'block', type: 'spike_ultrasonic_distance' },
+        { kind: 'block', type: 'spike_ultrasonic_presence' },
         { kind: 'block', type: 'spike_force_sensor_init' },
         { kind: 'block', type: 'spike_force_sensor_force' },
         { kind: 'block', type: 'spike_force_sensor_pressed' },
+        { kind: 'block', type: 'spike_force_sensor_distance' },
       ],
     },
     {
@@ -812,7 +1289,26 @@ export const toolbox = {
           },
         },
         { kind: 'block', type: 'spike_print' },
+        { kind: 'block', type: 'spike_comment' },
         { kind: 'block', type: 'spike_stopwatch' },
+        { kind: 'block', type: 'spike_stopwatch_init' },
+        { kind: 'block', type: 'spike_stopwatch_time' },
+        { kind: 'block', type: 'spike_stopwatch_reset' },
+        { kind: 'block', type: 'spike_stopwatch_pause' },
+        { kind: 'block', type: 'spike_stopwatch_resume' },
+      ],
+    },
+    {
+      kind: 'category',
+      name: '📚 Parameters',
+      colour: '40',
+      contents: [
+        { kind: 'block', type: 'spike_value_button' },
+        { kind: 'block', type: 'spike_value_color' },
+        { kind: 'block', type: 'spike_value_direction' },
+        { kind: 'block', type: 'spike_value_port' },
+        { kind: 'block', type: 'spike_value_side' },
+        { kind: 'block', type: 'spike_value_stop' },
       ],
     },
     { kind: 'sep' },
